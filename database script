@@ -1,0 +1,336 @@
+/******************************************************************************************************************
+* Written by Jossan,Gagandeep Singh | NetID: gxj170003
+* STARTED ON DATE 2018-10-19
+* CS6360.004 Assignment 4
+* PURPOSE : For creating database for storing data after operations performed by external user on ContactManager UI
+*           tables|stored procedures are also created
+*			values are filled in all tables 
+*******************************************************************************************************************/
+
+
+/*DROPS DATABASE CONTACT MANAGER IF IT EXISTS*/
+DROP DATABASE IF EXISTS CONTACTMANAGER
+/*CREATES DATABASE CONTACTMANAGER*/
+CREATE DATABASE CONTACTMANAGER
+
+USE CONTACTMANAGER
+
+DROP TABLE IF EXISTS PERSON
+/*Create a table person to store first name , last name , middle name , sex and birthdate
+  ID of a person is the primary key*/
+CREATE TABLE PERSON(
+	PersonID        INT         NOT NULL,
+	fname           VARCHAR(50),	       								
+	mname           VARCHAR(50),          
+	lname           VARCHAR(50),           
+	sex			    CHAR,
+	BirthDate		DATE DEFAULT NULL CHECK ( BirthDate < (CONVERT(date, getdate())) AND YEAR(BirthDate) > 1900  ),
+	CONSTRAINT PERSPPK PRIMARY KEY( PersonID )                
+)
+
+
+DROP TABLE IF EXISTS FAMILY
+/*Create table Family*/
+CREATE TABLE FAMILY(
+ f_PersonID    INT NOT NULL,
+ FamilyName    VARCHAR(50) NOT NULL,
+ CONSTRAINT FAMPPK PRIMARY KEY( f_PersonID,FamilyName ),
+ CONSTRAINT FAMFK FOREIGN KEY(f_PersonID) REFERENCES PERSON(PersonID)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+)
+
+/*Create table PHONENO to store phonenumber of a person*/
+DROP TABLE IF EXISTS PHONENO
+CREATE TABLE PHONENO(
+ pno_PersonID        INT         NOT NULL,
+ phonenumber      VARCHAR(12)      NOT NULL,
+
+ CONSTRAINT PHONEPPK PRIMARY KEY(pno_PersonID),
+ CONSTRAINT PHONEFK FOREIGN KEY(pno_PersonID) REFERENCES PERSON(PersonID)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+)
+
+
+DROP TABLE IF EXISTS EMAIL
+/*Create Table EMAIL to store email id of a person*/
+CREATE TABLE EMAIL(
+ mail_PersonID        INT         NOT NULL,
+ MailId         VARCHAR(65)        NOT NULL,
+
+ CONSTRAINT EMAILPPK PRIMARY KEY(mail_PersonID),
+ CONSTRAINT EMAILFK FOREIGN KEY(mail_PersonID) REFERENCES PERSON(PersonID)
+ ON DELETE CASCADE ON UPDATE CASCADE,
+)
+
+
+DROP TABLE IF EXISTS ADDRESS
+/*Create Table ADDRESS to store address of a person*/
+CREATE TABLE ADDRESS(
+ add_PersonID        INT         NOT NULL,          
+ State          VARCHAR(35),
+ City           VARCHAR(35),
+ Zip            VARCHAR(10),
+ CONSTRAINT ADDREPPK PRIMARY KEY(add_PersonID),
+ CONSTRAINT ADDEFK FOREIGN KEY(add_PersonID) REFERENCES PERSON(PersonID)
+ ON DELETE CASCADE ON UPDATE CASCADE,
+)
+
+
+DROP TABLE IF EXISTS LINE
+/*Create Table Line to store address line of a person*/
+CREATE TABLE LINE(
+ l_PersonID      	    INT	        NOT NULL,    
+ Line           VARCHAR(100),        
+ CONSTRAINT LINRPPK PRIMARY KEY(l_PersonID),
+ CONSTRAINT LINRPERFK FOREIGN KEY(l_PersonID) REFERENCES PERSON(PersonID)
+ ON DELETE CASCADE ON UPDATE CASCADE,
+)
+
+ DROP TABLE IF EXISTS MEETDATE
+ /*Create Table MEETDATE to store Date of meeting a person*/
+ CREATE TABLE MEETDATE(
+ md_PersonID      INT         NOT NULL,
+ MeetOnDate      DATE             NOT NULL,  
+ 
+ CONSTRAINT MEETDATEPPK PRIMARY KEY(md_PersonID,MeetOnDate),
+ CONSTRAINT MEETDATEFK FOREIGN KEY(md_PersonID) REFERENCES PERSON(PersonID)
+ ON DELETE CASCADE ON UPDATE CASCADE,
+)
+
+
+/*create a sequence sequence_persons to generate value to a surrogate key everytime the sequence is called */
+CREATE SEQUENCE sequence_persons
+start with 1
+increment by 1
+minvalue 0
+maxvalue 10000
+cycle;
+
+/*create procedure sp_updates to update the desired fields(only that are filled) (for a particular person id ) input by user on front end UI */
+GO
+CREATE PROCEDURE sp_updates
+    (
+		@fname VARCHAR(100)=NULL,
+		@mname VARCHAR(100)=NULL,
+		@lname VARCHAR(100)=NULL,
+		@sex CHAR=NULL,
+		@BirthDate DATE=NULL,
+		@phonenumber VARCHAR(12)=NULL,
+		@MailId VARCHAR(150)=NULL,
+		@City VARCHAR(100)=NULL,
+		@State VARCHAR(100)=NULL,
+		@Zip VARCHAR(10)=NULL,
+		@Line VARCHAR(300)=NULL,
+		@PersonID INT
+	)
+AS
+BEGIN 
+    UPDATE PERSON
+     SET fname=ISNULL(@fname,fname), 
+	     mname=ISNULL(@mname,mname), 
+		 lname = ISNULL(@lname,lname),
+		 sex =ISNULL(@sex,sex),
+		 BirthDate=ISNULL(@BirthDate,BirthDate)
+     WHERE PersonID=@PersonID
+
+	IF EXISTS (SELECT * FROM PHONENO WHERE pno_PersonID = @PersonID)
+	BEGIN
+	 UPDATE PHONENO
+	 	SET phonenumber=ISNULL(@phonenumber,phonenumber)
+	 WHERE pno_PersonID=@PersonID
+	END
+	ELSE 
+	BEGIN
+	 INSERT INTO PHONENO
+	 VALUES(@PersonID,@phonenumber)
+	END
+	
+	IF EXISTS (SELECT * FROM EMAIL WHERE mail_PersonID = @PersonID)
+	BEGIN
+	UPDATE EMAIL
+		SET MailId = ISNULL(@MailId,MailId)
+	WHERE mail_PersonID=@PersonID
+	END
+	ELSE
+	BEGIN
+	 INSERT INTO EMAIL
+	 VALUES (@PersonID,@MailId)
+	END
+	
+	IF EXISTS (SELECT * FROM ADDRESS WHERE add_PersonID = @PersonID)
+	BEGIN
+	UPDATE ADDRESS
+		SET City = ISNULL(@City,City),
+		    State = ISNULL(@State,State),
+		    Zip = ISNULL(@Zip,Zip)
+    WHERE add_PersonID=@PersonID
+	END
+	ELSE
+	BEGIN
+	 INSERT INTO ADDRESS
+	 VALUES (@PersonID,@State,@City,@Zip)
+	END
+	
+	IF EXISTS (SELECT * FROM LINE WHERE l_PersonID = @PersonID)
+	BEGIN
+    UPDATE LINE
+		SET Line = ISNULL(@Line,Line)
+    WHERE l_PersonID=@PersonID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO LINE
+		VALUES(@PersonID,@Line)
+	END
+	 
+END
+
+/*create procedure sp_inserts to insert the desired fields(only that are filled) input by user on front end UI */
+GO
+CREATE PROCEDURE sp_inserts
+    (
+		@fname VARCHAR(100)=NULL,
+		@mname VARCHAR(100)=NULL,
+		@lname VARCHAR(100)=NULL,
+		@sex CHAR=NULL,
+		@BirthDate DATE=NULL,
+		@phonenumber VARCHAR(12)=NULL,
+		@MailId VARCHAR(150)=NULL,
+		@City VARCHAR(100)=NULL,
+		@State VARCHAR(100)=NULL,
+		@Zip VARCHAR(10)=NULL,
+		@Line VARCHAR(300)=NULL,
+		@id INT = NULL
+	)
+AS
+BEGIN                           
+                        INSERT INTO PERSON
+                        VALUES
+                        (NEXT VALUE FOR sequence_persons, @fname ,@mname ,@lname,@sex,@BirthDate)
+						
+						INSERT INTO PHONENO
+                        VALUES
+                        ((SELECT CONVERT(INT, CURRENT_VALUE) FROM SYS.SEQUENCES WHERE name = 'sequence_persons'), @phonenumber)
+
+                        INSERT INTO EMAIL
+						VALUES
+                        ((SELECT CONVERT(INT, CURRENT_VALUE) FROM SYS.SEQUENCES WHERE name = 'sequence_persons'),@MailId)
+                        
+
+						INSERT INTO ADDRESS
+						VALUES
+						((SELECT CONVERT(INT, CURRENT_VALUE) FROM SYS.SEQUENCES WHERE name = 'sequence_persons'),@State,@City,@Zip)
+
+						INSERT INTO LINE
+						VALUES
+						((SELECT CONVERT(INT, CURRENT_VALUE) FROM SYS.SEQUENCES WHERE name = 'sequence_persons'),@Line)
+
+END       
+
+/*create procedure sp_searchs to search only if all fields are filled by the user on frontend UI*/
+GO
+CREATE PROCEDURE sp_searchs
+    (
+		@fname VARCHAR(100)=NULL,
+		@mname VARCHAR(100)=NULL,
+		@lname VARCHAR(100)=NULL,
+		@sex CHAR=NULL,
+		@BirthDate DATE=NULL,
+		@phonenumber VARCHAR(12)=NULL,
+		@MailId VARCHAR(150)=NULL,
+		@City VARCHAR(100)=NULL,
+		@State VARCHAR(100)=NULL,
+		@Zip VARCHAR(10)=NULL,
+		@Line VARCHAR(300)=NULL
+	)
+AS
+BEGIN
+    SELECT 
+    * FROM     PERSON    FULL OUTER JOIN PHONENO ON pno_PersonID = PersonID 
+						 FULL OUTER JOIN EMAIL ON mail_PersonID = PersonID 
+                         FULL OUTER JOIN ADDRESS ON add_PersonID = PersonID 
+						 FULL OUTER JOIN LINE ON l_PersonID = PersonID
+	WHERE fname = COALESCE(NULLIF(@fname, NULL), fname) AND 
+	      mname = COALESCE(NULLIF(@mname, NULL), mname) AND
+		  lname = COALESCE(NULLIF(@lname, NULL), lname) AND
+		  sex   = COALESCE(NULLIF(@sex, NULL), sex)     AND
+		  BirthDate = COALESCE(NULLIF(@BirthDate, NULL), BirthDate) AND
+		  phonenumber = COALESCE(NULLIF(@phonenumber, NULL), phonenumber) AND
+		  MailId = COALESCE(NULLIF(@MailId, NULL), MailId) AND
+		  City = COALESCE(NULLIF(@City, NULL), City) AND
+		  State = COALESCE(NULLIF(@State, NULL), State) AND
+		  Zip = COALESCE(NULLIF(@Zip, NULL), Zip) AND
+		  Line = COALESCE(NULLIF(@Line, NULL), Line)	 
+END
+GO
+
+/*Insert fields to Person table*/
+INSERT INTO PERSON
+VALUES(NEXT VALUE FOR sequence_persons,'gagandeep','singh','jossan','M', '1994-02-19')
+INSERT INTO PERSON
+VALUES(NEXT VALUE FOR sequence_persons,'George','Michael','duchaine','M','1983-12-09')
+INSERT INTO PERSON 
+VALUES(NEXT VALUE FOR sequence_persons,'Don',null,'Singh','M','1980-01-09')
+INSERT INTO PERSON 
+VALUES(NEXT VALUE FOR sequence_persons,'gaga','mike','josn','M', '1996-02-19')
+INSERT INTO PERSON 
+VALUES(NEXT VALUE FOR sequence_persons,'gagaN',NULL,'Kaur','F', '1995-02-19')
+
+/*Insert fields to Phoneno table*/
+INSERT INTO PHONENO
+VALUES(1,'758-382-8574')
+INSERT INTO PHONENO
+VALUES(2,'121-967-4534')
+INSERT INTO PHONENO
+VALUES(3,'294-523-0546')
+INSERT INTO PHONENO
+VALUES(5,'945-566-5555')
+
+/*Insert fields to Email table*/
+INSERT INTO EMAIL
+VALUES(1,'gagan123@gmail.com')
+INSERT INTO EMAIL
+VALUES(2,'geor7@yahoo.com')
+INSERT INTO EMAIL
+VALUES(3,'don@hotmail.com')
+
+/*Insert fields to Address table*/
+INSERT INTO ADDRESS
+VALUES(1,'TEXAS','DALLAS','38572')
+INSERT INTO ADDRESS
+VALUES(2,'CALIFORNIA','SANDIEGO','94589')
+INSERT INTO ADDRESS
+VALUES(3,'NEWYORK','NJ','05054')
+
+/*Insert fields to line table*/
+INSERT INTO LINE
+VALUES(1,'dallas street')
+INSERT INTO LINE
+VALUES(2,'cali street')
+INSERT INTO LINE
+VALUES(3,'NJ street')
+
+/*Insert fields to meetdate table*/
+INSERT INTO MEETDATE
+VALUES(1,'2018-02-12')
+INSERT INTO MEETDATE
+VALUES(2,'2018-07-14')
+INSERT INTO MEETDATE
+VALUES(3,'2012-02-02')
+
+/*Insert fields to family table*/
+INSERT INTO FAMILY
+VALUES(1,'SINGH')
+INSERT INTO FAMILY
+VALUES(3,'SINGH')
+INSERT INTO FAMILY
+VALUES(2,'Duchaine')
+
+
+SELECT * FROM PERSON            /*Show all tuples of table PERSON*/
+SELECT * FROM PHONENO			/*Show all tuples of table PHONENO*/	
+SELECT * FROM EMAIL				/*Show all tuples of table EMAIL*/
+SELECT * FROM ADDRESS			/*Show all tuples of table ADDRESS*/
+SELECT * FROM LINE				/*Show all tuples of table LINE*/
+SELECT * FROM MEETDATE			/*Show all tuples of table MEETDATE*/
+SELECT * FROM FAMILY			/*Show all tuples of table FAMILY*/
