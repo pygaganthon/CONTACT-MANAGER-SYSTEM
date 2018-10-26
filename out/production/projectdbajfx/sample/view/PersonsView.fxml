@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="1038.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.control.PersonController">
+   <children>
+      <Button fx:id="searchPerBtn" layoutX="279.0" layoutY="205.0" mnemonicParsing="false" onAction="#searchPerson" prefHeight="33.0" prefWidth="161.0" text="Search" />
+      <Button fx:id="deletePerBtn" layoutX="609.0" layoutY="205.0" mnemonicParsing="false" onAction="#deletePerson" prefHeight="33.0" prefWidth="67.0" text="Delete" />
+      <Button fx:id="updatePerBtn" layoutX="610.0" layoutY="120.0" mnemonicParsing="false" onAction="#updatePersonlname" prefHeight="33.0" prefWidth="65.0" text="Update" />
+      <Button fx:id="addPerBtn" layoutX="535.0" layoutY="29.0" mnemonicParsing="false" onAction="#insertPerson" prefHeight="33.0" prefWidth="102.0" text="Add Person" />
+      <TextArea fx:id="result" layoutX="689.0" layoutY="54.0" prefHeight="185.0" prefWidth="203.0" wrapText="true" />
+      <Label layoutX="853.0" layoutY="25.0" text="Result">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <VBox layoutX="97.0" layoutY="24.0" spacing="4.0">
+         <children>
+            <TextField fx:id="FirstnameText" prefHeight="25.0" prefWidth="79.0" promptText="First Name" />
+            <TextField fx:id="MidnameText" prefHeight="25.0" prefWidth="79.0" promptText="Mid Name" />
+            <TextField fx:id="LastnameText" prefHeight="25.0" prefWidth="79.0" promptText="Last Name" />
+            <TextField fx:id="BdateText" prefHeight="25.0" prefWidth="79.0" promptText="Birth Date" />
+            <TextField fx:id="sexText" prefHeight="25.0" prefWidth="79.0" promptText="Sex" />
+         </children>
+      </VBox>
+      <VBox layoutX="9.0" layoutY="28.0" prefWidth="67.0" spacing="12.0">
+         <children>
+            <Label text="First Name" />
+            <Label text="Mid Name" />
+            <Label text="Last Name" />
+         </children>
+      </VBox>
+      <Separator layoutX="1.0" layoutY="14.0" prefHeight="4.0" prefWidth="600.0" />
+      <Separator layoutX="242.0" layoutY="24.0" orientation="VERTICAL" prefHeight="176.0" prefWidth="6.0" />
+      <TableView fx:id="personTable" editable="true" layoutX="2.0" layoutY="270.0" prefHeight="225.0" prefWidth="1038.0" tableMenuButtonVisible="true">
+         <columns>
+            <TableColumn fx:id="PersonIdColumn" prefWidth="61.0" text="Person ID" />
+            <TableColumn fx:id="FirstNameColumn" prefWidth="110.0" text="First Name" />
+            <TableColumn fx:id="MidNameColumn" prefWidth="79.0" text="Mid Name" />
+            <TableColumn fx:id="LastNameColumn" prefWidth="79.0" text="Last Name" />
+            <TableColumn fx:id="BirthDateColumn" prefWidth="79.0" text="Birth Date" />
+            <TableColumn fx:id="SexColumn" prefWidth="32.0" text="Sex" />
+            <TableColumn fx:id="PhoneNoColumn" prefWidth="109.0" text="Phone No" />
+            <TableColumn fx:id="EmailColumn" prefWidth="111.0" text="Email" />
+            <TableColumn fx:id="CityColumn" prefWidth="79.0" text="City" />
+            <TableColumn fx:id="StateColumn" prefWidth="79.0" text="State" />
+            <TableColumn fx:id="ZipColumn" prefWidth="58.0" text="Zip" />
+            <TableColumn fx:id="AddressLineColumn" prefWidth="146.0" text="AddressLine" />
+         </columns>
+      </TableView>
+      <Button fx:id="searchPersBtn" layoutX="14.0" layoutY="205.0" mnemonicParsing="false" onAction="#searchPersons" prefHeight="33.0" prefWidth="218.0" text="Search All Persons" />
+      <Label layoutX="9.0" layoutY="118.0" text="Birth Date" />
+      <Label layoutX="11.0" layoutY="146.0" text="Sex" />
+      <Label layoutX="276.0" layoutY="56.0" text="Phone No" />
+      <TextField fx:id="PhoneNoText" layoutX="364.0" layoutY="52.0" prefHeight="25.0" prefWidth="79.0" promptText="Phone No" />
+      <Label layoutX="276.0" layoutY="28.0" text="Email" />
+      <TextField fx:id="EmailText" layoutX="364.0" layoutY="24.0" prefHeight="25.0" prefWidth="79.0" promptText="Email" />
+      <Label layoutX="274.0" layoutY="84.0" text="City" />
+      <TextField fx:id="CityText" layoutX="363.0" layoutY="80.0" prefHeight="25.0" prefWidth="79.0" promptText="City" />
+      <Label layoutX="274.0" layoutY="112.0" text="State" />
+      <TextField fx:id="StateText" layoutX="362.0" layoutY="108.0" prefHeight="25.0" prefWidth="79.0" promptText="State" />
+      <Label layoutX="277.0" layoutY="138.0" text="Zip" />
+      <TextField fx:id="ZipText" layoutX="362.0" layoutY="136.0" prefHeight="25.0" prefWidth="79.0" promptText="Zip" />
+      <Label layoutX="277.0" layoutY="171.0" text="AddressLine" />
+      <TextField fx:id="AddressLineText" layoutX="362.0" layoutY="166.0" prefHeight="25.0" prefWidth="79.0" promptText="AddressLine" />
+      <Separator layoutX="485.0" layoutY="24.0" orientation="VERTICAL" prefHeight="176.0" prefWidth="6.0" />
+      <TextField fx:id="UPIDText" layoutX="570.0" layoutY="126.0" prefHeight="25.0" prefWidth="35.0" promptText="PID" />
+      <Label layoutX="512.0" layoutY="130.0" text="Person ID" />
+      <Label layoutX="512.0" layoutY="213.0" text="Person ID" />
+      <TextField fx:id="DPIDText" layoutX="569.0" layoutY="209.0" prefHeight="25.0" prefWidth="35.0" promptText="PID" />
+   </children>
+</AnchorPane>
